@@ -59,7 +59,7 @@ function TrangThaiDeTai() {
         };
         fetchAPI(currentUser.ma);
     }, [currentUser]);
-    console.log(ketqua);
+    
     return (
         <div>
             {isLoading ? <div>Trang web đang được tải</div> :

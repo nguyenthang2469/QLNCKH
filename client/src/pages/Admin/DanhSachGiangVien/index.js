@@ -42,23 +42,36 @@ function DanhSachGiangVien() {
     
     const handleSubmit = (e) => {
         e.preventDefault();
-        const fetchAPI = async () => {
-            setIsLoading(true);
-            const res = await request.put(`/giangvien/${magv}`, {
-                ngaysinh, gioitinh, khoa, diachi
-            });
-            if(res) {
-                setDsgiangvien((prev) => {
-                    // const newDsgv = [...prev, { magv, tengv, ngaysinh, gioitinh, khoa, diachi }]; 
-                    // return newDsgv;
-                })
-                alert("Cập nhật thành công");
-            }
-            setIsLoading(false);
-        };
-        fetchAPI();
+        if(!ngaysinh) alert("Ngày sinh không hợp lệ");
+        else if(!khoa) alert("Khoa không được để trống");
+        else if(!diachi) alert("Địa chỉ không được để trống");
+        else {
+            const fetchAPI = async () => {
+                setIsLoading(true);
+                const res = await request.put(`/giangvien/${magv}`, {
+                    ngaysinh, gioitinh, khoa, diachi
+                });
+                if(res) {
+                    setDsgiangvien((prev) => {
+                        const newDsgv = prev.map((gv) => {
+                            if(gv.magv === magv) {
+                                gv.ngaysinh = ngaysinh;
+                                gv.gioitinh = gioitinh;
+                                gv.khoa = khoa;
+                                gv.diachi = diachi;
+                            }
+                            return gv;
+                        })
+                        return newDsgv;
+                    })
+                    alert("Cập nhật thành công");
+                }
+                setIsLoading(false);
+            };
+            fetchAPI();
+        }
     }
-    console.log(dsgiangvien);
+
     return (
         <div>
             {isLoading ? <div>Trang web đang được tải</div> :
@@ -151,7 +164,7 @@ function DanhSachGiangVien() {
                                         <label className="block text-[1.8rem] mb-1">Giới tính</label>
                                         <select
                                             value={gioitinh}
-                                            onChange={e => setGioitinh(e.target.value)}
+                                            onChange={e => setGioitinh(Number(e.target.value))}
                                             className="w-full px-3 py-2 text-[1.8rem] border-solid border-2 border-gray-400 focus:border-gray-600 rounded-md"
                                         >
                                             <option value="0">Nam</option>

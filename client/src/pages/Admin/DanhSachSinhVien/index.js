@@ -44,31 +44,37 @@ function DanhSachSinhVien() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const fetchAPI = async () => {
-            setIsLoading(true);
-            const res = await request.put(`/sinhvien/${masv}`, {
-                ngaysinh, gioitinh, lop, khoa, diachi
-            });
-            if(res) {
-                alert("Cập nhật thành công");
-                setDssinhvien((prev) => {
-                    const newDssv = prev.map((sv) => {
-                        if(sv.masv === masv) {
-                            sv.ngaysinh = ngaysinh;
-                            sv.gioitinh = gioitinh;
-                            sv.lop = lop;
-                            sv.khoa = khoa;
-                            sv.diachi = diachi;
-                        }
-                        return sv;
-                    })
-                    return newDssv;
-                })
-            }
-            setIsLoading(false);
-        };
-        fetchAPI();
-    }
+        if (!ngaysinh) alert("Ngày sinh không hợp lệ");
+        else if (!lop) alert("Lớp không được để trống");
+        else if (!khoa) alert("Khoa không được để trống");
+        else if (!diachi) alert("Địa chỉ không được để trống");
+        else {
+            const fetchAPI = async () => {
+                setIsLoading(true);
+                const res = await request.put(`/sinhvien/${masv}`, {
+                    ngaysinh, gioitinh, lop, khoa, diachi
+                });
+                if (res) {
+                    setDssinhvien((prev) => {
+                        const newDssv = prev.map((sv) => {
+                            if (sv.masv === masv) {
+                                sv.ngaysinh = ngaysinh;
+                                sv.gioitinh = gioitinh;
+                                sv.lop = lop;
+                                sv.khoa = khoa;
+                                sv.diachi = diachi;
+                            }
+                            return sv;
+                        });
+                        return newDssv;
+                    });
+                    alert("Cập nhật thành công");
+                }
+                setIsLoading(false);
+            };
+            fetchAPI();
+        }
+    };
 
     return (
         <div>
@@ -164,7 +170,7 @@ function DanhSachSinhVien() {
                                         <label className="block text-[1.8rem] mb-1">Giới tính</label>
                                         <select
                                             value={gioitinh}
-                                            onChange={e => setGioitinh(e.target.value)}
+                                            onChange={e => setGioitinh(Number(e.target.value))}
                                             className="w-full px-3 py-2 text-[1.8rem] border-solid border-2 border-gray-400 focus:border-gray-600 rounded-md"
                                         >
                                             <option value="0">Nam</option>

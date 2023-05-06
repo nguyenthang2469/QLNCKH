@@ -27,6 +27,18 @@ app.get("/api/user", (req, res) => {
     }
 });
 
+app.put("/api/user/:taikhoan", (req, res) => {
+    const taikhoan = req.params.taikhoan;
+    const matkhau = req.body.matkhau;
+
+    db.query("UPDATE account SET matkhau = ? where taikhoan = ?", [matkhau, taikhoan], (err, result) => {
+        if (err) {
+            console.log(err);
+        }
+        res.send(result);
+    });
+});
+
 // Sinh viên
 app.get("/api/sinhvien", (req, res) => {
     const masv = req.query.masv;
@@ -50,7 +62,7 @@ app.get("/api/sinhvien", (req, res) => {
 app.put("/api/sinhvien/:masv", (req, res) => {
     const masv = req.params.masv;
     const ngaysinh = req.body.ngaysinh;
-    const gioitinh = req.body.gioitinh;
+    const gioitinh = Number(req.body.gioitinh);
     const lop = req.body.lop;
     const khoa = req.body.khoa;
     const diachi = req.body.diachi;
@@ -85,15 +97,7 @@ app.get("/api/nhom", (req, res) => {
             }
             res.send(result);
         });
-    } 
-    // else if (manhom) {
-    //     db.query("SELECT * FROM nhom where manhom = ?", manhom, (err, result) => {
-    //         if (err) {
-    //             console.log(err);
-    //         }
-    //         res.send(result);
-    //     });
-    // } 
+    }
     else if (order && limit) {
         if (order.toLowerCase() === "asc") {
             db.query("SELECT * FROM nhom ORDER BY manhom ASC limit ?", limit, (err, result) => {

@@ -47,7 +47,6 @@ function PhanCongDetai() {
         const fetchAPI = async () => {
             setIsLoading(true);
             const res = await request.deleteAPI(`/nhom/${detai.manhom}`);
-            console.log(res);
             setDsdetai(prev => {
                 return prev.filter(dt => dt.madt !== detai.madt)
             })

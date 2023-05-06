@@ -69,7 +69,7 @@ function DangKyDeTai() {
         e.preventDefault();
         const fetchAPI = async (masv) => {
             const ressv = await request.get('/sinhvien', { params: { masv } });
-            if(ressv[0]) {
+            if (ressv[0]) {
                 const res = await request.get('/nhom', { params: { masv } });
                 if (res.length > 0) {
                     error2Ref.current.hidden = false;
@@ -99,8 +99,8 @@ function DangKyDeTai() {
         setDsthanhvien(prev => {
             const newState = prev.filter((item, index) => index !== id);
             return newState;
-        })
-    }
+        });
+    };
 
     const handleClose = (e) => {
         e.target.closest(".modal").hidden = true;
@@ -113,7 +113,7 @@ function DangKyDeTai() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if(tendetai === "" || gvhd === "") {
+        if (tendetai === "" || gvhd === "") {
             if (tendetai === "") detaiErrorRef.current.hidden = false;
             if (gvhd === "") giangvienErrorRef.current.hidden = false;
         } else {
@@ -127,7 +127,7 @@ function DangKyDeTai() {
                     tensv: currentUser.hoten,
                     vaitro: "Chủ nhiệm"
                 });
-                if(dsthanhvien.length > 0) {
+                if (dsthanhvien.length > 0) {
                     dsthanhvien.map(async (thanhvien) => {
                         await request.post('/nhom', {
                             manhom,
@@ -135,7 +135,7 @@ function DangKyDeTai() {
                             tensv: thanhvien.tensv,
                             vaitro: "Thành viên"
                         });
-                    })
+                    });
                 }
                 const resdt = await request.get('/detai', { params: { order: "DESC", limit: 1 } });
                 let madt = resdt[0]?.madt || "dt0";
@@ -149,7 +149,7 @@ function DangKyDeTai() {
                     magvhd: gvhd.magv,
                     tengvhd: gvhd.tengv
                 });
-                if(respostdt) {
+                if (respostdt) {
                     alert("Đăng ký đề tài thành công");
                     window.location.href = "/trangthaidetai";
                 }
@@ -220,7 +220,7 @@ function DangKyDeTai() {
                                 >
                                     <option value="DEFAULT" disabled hidden></option>
                                     {dsgiangvien.length > 0 && dsgiangvien.map((giangvien, index) => (
-                                        <option key={index} value={JSON.stringify({magv: giangvien.magv, tengv: giangvien.tengv})} >{`${giangvien.magv} - ${giangvien.tengv}`}</option>
+                                        <option key={index} value={JSON.stringify({ magv: giangvien.magv, tengv: giangvien.tengv })} >{`${giangvien.magv} - ${giangvien.tengv}`}</option>
                                     ))}
                                 </select>
                                 <p ref={giangvienErrorRef} hidden className="text-red-500">*Chưa chọn giảng viên hướng dẫn</p>

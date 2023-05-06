@@ -80,7 +80,6 @@ function PhanCongGV() {
                 }
             };
             fetchAPI();
-            modalAssignmentRef.current.hidden = true;
         }
     }
 
