@@ -11,35 +11,35 @@ function TeacherHome() {
                 </thead>
                 <tbody>
                     <tr>
-                        <td className="p-3 border-2 border-gray-300">Thông báo hạn nộp đề cương</td>
+                        <td className="p-3 border-2 border-gray-300">Thông báo yêu cầu chấm đề tài</td>
                         <td className="p-3 border-2 border-gray-300">21/4/2023 11:58:34 AM</td>
                     </tr>
                     <tr>
-                        <td className="p-3 border-2 border-gray-300">Thông báo hạn nộp đề cương</td>
+                        <td className="p-3 border-2 border-gray-300">Thông báo yêu cầu chấm đề tài</td>
                         <td className="p-3 border-2 border-gray-300">21/4/2023 11:58:34 AM</td>
                     </tr>
                     <tr>
-                        <td className="p-3 border-2 border-gray-300">Thông báo hạn nộp đề cương</td>
+                        <td className="p-3 border-2 border-gray-300">Thông báo yêu cầu chấm đề tài</td>
                         <td className="p-3 border-2 border-gray-300">21/4/2023 11:58:34 AM</td>
                     </tr>
                     <tr>
-                        <td className="p-3 border-2 border-gray-300">Thông báo hạn nộp đề cương</td>
+                        <td className="p-3 border-2 border-gray-300">Thông báo yêu cầu chấm đề tài</td>
                         <td className="p-3 border-2 border-gray-300">21/4/2023 11:58:34 AM</td>
                     </tr>
                     <tr>
-                        <td className="p-3 border-2 border-gray-300">Thông báo hạn nộp đề cương</td>
+                        <td className="p-3 border-2 border-gray-300">Thông báo yêu cầu chấm đề tài</td>
                         <td className="p-3 border-2 border-gray-300">21/4/2023 11:58:34 AM</td>
                     </tr>
                     <tr>
-                        <td className="p-3 border-2 border-gray-300">Thông báo hạn nộp đề cương</td>
+                        <td className="p-3 border-2 border-gray-300">Thông báo yêu cầu chấm đề tài</td>
                         <td className="p-3 border-2 border-gray-300">21/4/2023 11:58:34 AM</td>
                     </tr>
                     <tr>
-                        <td className="p-3 border-2 border-gray-300">Thông báo hạn nộp đề cương</td>
+                        <td className="p-3 border-2 border-gray-300">Thông báo yêu cầu chấm đề tài</td>
                         <td className="p-3 border-2 border-gray-300">21/4/2023 11:58:34 AM</td>
                     </tr>
                     <tr>
-                        <td className="p-3 border-2 border-gray-300">Thông báo hạn nộp đề cương</td>
+                        <td className="p-3 border-2 border-gray-300">Thông báo yêu cầu chấm đề tài</td>
                         <td className="p-3 border-2 border-gray-300">21/4/2023 11:58:34 AM</td>
                     </tr>
                 </tbody>

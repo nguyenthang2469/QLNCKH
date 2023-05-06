@@ -1,17 +1,40 @@
 import { useEffect, useRef, useState } from "react";
-import { faCheck, faCircleExclamation, faPen, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faCircleExclamation, faPen, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Modal from "~/components/Modal";
 import * as request from "~/utils/request";
 
-function PhanCongDetai() {
+function PhanCongGV() {
+    const [dsgiangvien, setDsgiangvien] = useState([]);
+    const [gvcham, setGvcham] = useState(null);
     const [dsdetai, setDsdetai] = useState(null);
     const [detai, setDetai] = useState(null);
     const [dsthanhvien, setDsthanhvien] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
     const modalDetailRef = useRef();
-    const modalApproveRef = useRef();
+    const modalAssignmentRef = useRef();
+    const giangvienErrorRef = useRef();
+    
+    useEffect(() => {
+        const fetchAPI = async () => {
+            setIsLoading(true);
+            const res = await request.get("/ketqua");
+            if(res.length > 0) {
+                const makq = res.reduce((total, kq) => {
+                    total.push(kq.madt);
+                    return total
+                }, [])
+                const resdt = await request.get("/detai", { params: { decuong: "Đã nộp", madt: makq } });
+                setDsdetai(resdt);
+            } else {
+                const resdt = await request.get("/detai", { params: { decuong: "Đã nộp" } });
+                setDsdetai(resdt);
+            }
+            setIsLoading(false);
+        };
+        fetchAPI();
+    }, []);
 
     const handleClose = (e) => {
         e.target.closest(".modal").hidden = true;
@@ -27,53 +50,48 @@ function PhanCongDetai() {
         modalDetailRef.current.hidden = false;
     }
 
-    const handleConfirm = () => {
+    const handleAssignment = (dt) => {
+        setDetai(dt);
         const fetchAPI = async () => {
-            setIsLoading(true);
-            const res = await request.put(`/detai/${detai.madt}`, { trangthai: "Đã duyệt" });
-            if(res) {
-                setDsdetai(prev => {
-                    return prev.filter(dt => dt.madt !== detai.madt)
-                })
-                alert("Đề tài đã được duyệt");
-            }
-            setIsLoading(false);
+            const res = await request.get("/giangvien", { params: { magv: "!" + dt.magvhd }});
+            res.length && setDsgiangvien(res);
         };
         fetchAPI();
-        modalApproveRef.current.hidden = true;
+        modalAssignmentRef.current.hidden = false;
     }
-    
-    const handleRefuse = () => {
-        const fetchAPI = async () => {
-            setIsLoading(true);
-            const res = await request.deleteAPI(`/nhom/${detai.manhom}`);
-            console.log(res);
-            setDsdetai(prev => {
-                return prev.filter(dt => dt.madt !== detai.madt)
-            })
-            setIsLoading(false);
-        };
-        fetchAPI();
-        modalApproveRef.current.hidden = true;
+    const handleSubmit = () => {
+        if(!gvcham) {
+            alert("Chưa chọn giáo viên chấm cho đề tài này");
+        } else {
+            const fetchAPI = async () => {
+                const res = await request.post('/ketqua', { 
+                    madt: detai.madt,
+                    tendt: detai.tendt,
+                    manhom: detai.manhom,
+                    tenchunhiem: detai.tenchunhiem,
+                    magvcham: gvcham.magv,
+                    tengvcham: gvcham.tengv
+                });
+                if(res) {
+                    setDsdetai(prev => {
+                        return prev.filter(dt => dt.madt !== detai.madt)
+                    })
+                    alert("Phân công giáo viên thành công!");
+                }
+            };
+            fetchAPI();
+            modalAssignmentRef.current.hidden = true;
+        }
     }
 
-    useEffect(() => {
-        const fetchAPI = async () => {
-            setIsLoading(true);
-            const resdt = await request.get("/detai", { params: { trangthai: "Đang chờ duyệt" } });
-            setDsdetai(resdt);
-            setIsLoading(false);
-        };
-        fetchAPI();
-    }, []);
     return (
         <div>
             {isLoading ? <div>Trang web đang được tải</div> :
                 !dsdetai || dsdetai.length === 0 ? (
-                    <h2 className="text-center mt-12 text-[2.4rem] font-bold">Hiện không có nhóm nghiên cứu nào chờ duyệt</h2>
+                    <h2 className="text-center mt-12 text-[2.4rem] font-bold">Hiện không có nhóm nghiên cứu nào chờ phân công giáo viên chấm</h2>
                 ) : (
                     <>
-                        <h2 className="text-center text-4xl font-bold pb-16 border-b-2 border-gray-200">Danh sách đề tài đang chờ duyệt</h2>
+                        <h2 className="text-center text-4xl font-bold pb-16 border-b-2 border-gray-200">Danh sách đề tài đang chờ phân công giáo viên chấm</h2>
                         <div className="px-4 select-none">
                             <table className="w-full mt-12">
                                 <thead>
@@ -83,7 +101,7 @@ function PhanCongDetai() {
                                         <th className="p-3 text-3xl font-semibold bg-[#aff3f7] border-2 border-gray-300">Tên chủ nhiệm</th>
                                         <th className="p-3 text-3xl font-semibold bg-[#aff3f7] border-2 border-gray-300">Mã gvhd</th>
                                         <th className="p-3 text-3xl font-semibold bg-[#aff3f7] border-2 border-gray-300">Tên gvhd</th>
-                                        <th className="w-[260px] p-3 text-3xl font-semibold bg-[#aff3f7] border-2 border-gray-300">Chức năng</th>
+                                        <th className="w-[264px] p-3 text-3xl font-semibold bg-[#aff3f7] border-2 border-gray-300">Chức năng</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -101,13 +119,10 @@ function PhanCongDetai() {
                                                             <FontAwesomeIcon className="mr-2" icon={faCircleExclamation} /> Chi tiết
                                                         </button>
                                                         <button
-                                                            onClick={() => {
-                                                                setDetai(dt);
-                                                                modalApproveRef.current.hidden = false;
-                                                            }}
+                                                            onClick={() => handleAssignment(dt)}
                                                             className="px-6 py-2 cursor-pointer text-white hover:bg-rose-600 bg-rose-500 rounded-3xl"
                                                         >
-                                                            <FontAwesomeIcon className="mr-2" icon={faPen} /> Phê duyệt
+                                                            <FontAwesomeIcon className="mr-2" icon={faPen} /> Phân công
                                                         </button>
                                                     </div>
                                                 </td>
@@ -119,7 +134,7 @@ function PhanCongDetai() {
                         </div>
                         <Modal hidden ref={modalDetailRef} onClick={handleClose} className="modal">
                         {
-                            detai ? (
+                            detai && (
                                 <>
                                     <div className="flex items-center justify-center sticky bg-white top-0 left-0 right-0 h-[65px] shadow-md">
                                         <h3 className="text-center text-4xl font-semibold">Chi tiết đề tài</h3>
@@ -198,22 +213,34 @@ function PhanCongDetai() {
                                         }
                                     </div>
                                 </>
-                            ) : <></>
+                            )
                         }
                         </Modal>
-                        <Modal hidden ref={modalApproveRef} onClick={handleClose} className="modal">
+                        <Modal hidden ref={modalAssignmentRef} onClick={handleClose} className="modal">
                             <div className="flex items-center justify-center sticky bg-white top-0 left-0 right-0 h-[65px] shadow-md">
-                                <h3 className="text-center text-4xl font-semibold">Phê duyệt</h3>
+                                <h3 className="text-center text-4xl font-semibold">Phân công giáo viên chấm</h3>
                                 <FontAwesomeIcon onClick={handleClose} className="absolute top-1/2 right-5 -translate-y-1/2 p-2 text-4xl cursor-pointer hover:opacity-70" icon={faXmark} />
                             </div>
-                            <div className="flex gap-12 p-12">
-                                <button onClick={handleConfirm} className="flex items-center justify-center w-[150px] text-[1.8rem] px-[12px] py-[10px] rounded-[4px] bg-green-200 hover:bg-green-100">
-                                    <FontAwesomeIcon className="mr-4 text-green-500" icon={faCheck} />
-                                    <span className="text-green-900">Xác nhận</span>
-                                </button>
-                                <button onClick={handleRefuse} className="flex items-center justify-center w-[150px] text-white text-[1.8rem] px-[12px] py-[10px] rounded-[4px] bg-red-200 hover:bg-red-100">
-                                    <FontAwesomeIcon className="mr-4 text-red-500" icon={faXmark} />
-                                    <span className="text-red-900">Từ chối</span>
+                            <div className="flex flex-col items-center gap-12 p-12">
+                                <div className="w-[500px]">
+                                    <label className="block text-[1.8rem] mb-1">Giảng viên Chấm</label>
+                                    <select
+                                        onChange={(e) => {
+                                            giangvienErrorRef.current.hidden = true;
+                                            setGvcham(JSON.parse(e.target.value));
+                                        }}
+                                        defaultValue={'DEFAULT'}
+                                        className="text-3xl mt-3 p-3 w-full border-solid border-2 border-gray-200 focus:border-gray-400 rounded-lg"
+                                    >
+                                        <option value="DEFAULT" disabled hidden></option>
+                                        {dsgiangvien.length > 0 && dsgiangvien.map((giangvien, index) => (
+                                            <option key={index} value={JSON.stringify({magv: giangvien.magv, tengv: giangvien.tengv})} >{`${giangvien.magv} - ${giangvien.tengv}`}</option>
+                                        ))}
+                                    </select>
+                                    <p ref={giangvienErrorRef} hidden className="text-red-500">*Chưa chọn giảng viên</p>
+                                </div>
+                                <button onClick={handleSubmit} className="flex items-center justify-center w-[150px] text-white text-[1.8rem] py-[10px] rounded-[4px] bg-red-500 hover:bg-red-400">
+                                    Xác nhận
                                 </button>
                             </div>
                         </Modal>
@@ -224,4 +251,4 @@ function PhanCongDetai() {
     );
 }
 
-export default PhanCongDetai;
+export default PhanCongGV;

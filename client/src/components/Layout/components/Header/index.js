@@ -22,7 +22,7 @@ const MENU_PROFILE = [
     {
         icon: <FontAwesomeIcon icon={faPowerOff} />,
         title: 'Đăng xuất',
-        handleLogout: () => {
+        onClick: () => {
             localStorage.removeItem('account');
             window.location.href = '/';
         }
@@ -32,19 +32,19 @@ const MENU_PROFILE = [
 const MENU_ITEMS = [
     {
         icon: <FontAwesomeIcon icon={faEarthAsia} />,
-        title: 'English',
+        title: 'Tiếng Việt',
         children: {
-            title: 'language',
+            title: 'Ngôn ngữ',
             data: [
-                {
-                    type: 'language',
-                    code: 'en',
-                    title: 'English'
-                },
                 {
                     type: 'language',
                     code: 'vi',
                     title: 'Tiếng Việt'
+                },
+                {
+                    type: 'language',
+                    code: 'en',
+                    title: 'English'
                 }
             ]
         }
@@ -71,7 +71,7 @@ function Header() {
                     }
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-6">
                     <Link to="/"><FontAwesomeIcon className="text-4xl cursor-pointer" title="Thông báo" icon={faBell} /></Link>
                     <span className="text-gray-500 font-medium">{currentUser.hoten}</span>
                     <Menu

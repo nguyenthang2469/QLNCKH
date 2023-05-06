@@ -1,4 +1,4 @@
-import { Fragment, useEffect } from "react";
+import { Fragment } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { publicRoutes, privateRoutes } from "~/routes";
 import { StudentLayout } from "~/components/Layout";

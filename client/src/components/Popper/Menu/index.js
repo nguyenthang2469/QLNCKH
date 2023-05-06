@@ -18,9 +18,9 @@ function Menu({ children, items = [], onChange = defaultFn }) {
     const renderItems = () => {
         return current.data.map((item, index) => {
             const isParent = !!item.children;
-            let handleClick = () => { };
-            if (item.handleLogout !== undefined) {
-                handleClick = item.handleLogout;
+            let handleClick = () => {};
+            if (item.onClick) {
+                handleClick = item.onClick;
             } else {
                 handleClick = () => {
                     if (isParent) {

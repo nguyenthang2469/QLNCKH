@@ -1,113 +1,256 @@
+import { useEffect, useRef, useState, useContext } from "react";
 import { faCircleExclamation, faPen, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useLayoutEffect, useRef, useState } from "react";
 import Modal from "~/components/Modal";
-
-const currentUser = JSON.parse(localStorage.getItem("account")) || "";
+import * as request from "~/utils/request";
+import { UserContext } from "~/components/Layout/StudentLayout";
+import Button from "~/components/Button";
 
 function TrangThaiDeTai() {
-    const [dsdetai, setDsdetai] = useState([]);
-    const [dsnhom, setDsnhom] = useState([]);
-    const [sv, setSv] = useState();
-    const [dt, setDt] = useState();
+    const currentUser = useContext(UserContext);
 
-    const modalRef = useRef();
+    const [ketqua, setKetqua] = useState(null);
+    const [detai, setDetai] = useState({});
+    const [decuong, setDecuong] = useState({});
+    const [sinhvien, setSinhvien] = useState({});
+    const [dsthanhvien, setDsthanhvien] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const textareaFileRef = useRef();
+    const inputFileRef = useRef();
+    const modalDetailRef = useRef();
+    const modalUpdateRef = useRef();
+    const modalNotifyRef = useRef();
 
     const handleClose = (e) => {
         e.target.closest(".modal").hidden = true;
+        textareaFileRef.current.value = decuong ? decuong : "Chưa nộp đề cương";
     };
 
-    const handleDetail = () => {
-        modalRef.current.hidden = false;
-    };
-
-    useLayoutEffect(() => {
-        fetch("http://localhost/QLNCKH/PHP/detai.php")
-            .then((response) => response.json())
-            .then((res) => {
-                setDsdetai(res);
-            });
-    }, []);
-
-    useLayoutEffect(() => {
-        fetch("http://localhost/QLNCKH/PHP/nhom.php")
-            .then((response) => response.json())
-            .then((res) => {
-                setDsnhom(res);
-            });
-    }, []);
-
-    useLayoutEffect(() => {
-        setSv(dsnhom.find((sinhvien) => sinhvien.masv === currentUser.ma));
-        if (sv) {
-            setDt(dsdetai.find((detai) => detai.manhom === sv.manhom));
+    const handleUpdate = (dc) => {
+        if (dc) {
+            setDecuong(dc);
+            const fetchAPI = async () => {
+                const res = await request.put(`/detai/${detai.madt}`, { decuong: dc }, {
+                    Headers: { 'Content-Type': 'application/json; charset=utf-8' }
+                });
+                inputFileRef.current.value = "";
+                res && alert("Nộp đề cương thành công");
+            };
+            fetchAPI();
+            modalUpdateRef.current.hidden = true;
+        } else {
+            alert("Bạn chưa chọn đề cương");
         }
-    }, [dsnhom, dsdetai]);
+    };
+
+    useEffect(() => {
+        const fetchAPI = async (masv) => {
+            setIsLoading(true);
+            const ressv = await request.get('/nhom', { params: { masv } });
+            if (ressv[0]) {
+                const resdt = await request.get("/detai", { params: { manhom: ressv[0].manhom } });
+                const resdstv = await request.get('/nhom', { params: { manhom: ressv[0].manhom, vaitro: "Thành viên" } });
+                const reskq = await request.get('/ketqua', { params: { manhom: ressv[0].manhom } });
+                reskq[0] && setKetqua(reskq[0]);
+                setDetai(resdt[0]);
+                setDsthanhvien(resdstv);
+                setDecuong(resdt[0]?.decuong);
+            }
+            setSinhvien(ressv[0]);
+            setIsLoading(false);
+        };
+        fetchAPI(currentUser.ma);
+    }, [currentUser]);
 
     return (
         <div>
-            {sv === undefined ? (
-                <h2 className="text-center mt-12 text-[2.4rem] font-bold">Bạn chưa có nhóm nghiên cứu khoa học không thể xem trạng thái đề tài</h2>
-            ) : (
-                <>
-                    <h2 className="text-center text-4xl font-bold pb-16 border-b-2 border-gray-200">Trạng thái đề tài</h2>
-                    <div className="px-4 select-none">
-                        <table className="w-full mt-12">
-                            <thead>
-                                <tr>
-                                    <th className="p-3 text-3xl font-semibold bg-[#aff3f7] border-2 border-gray-300">Tên đề tài</th>
-                                    <th className="p-3 text-3xl font-semibold bg-[#aff3f7] border-2 border-gray-300">Chủ nhiệm đề tài</th>
-                                    <th className="p-3 text-3xl font-semibold bg-[#aff3f7] border-2 border-gray-300">Giảng viên hướng dẫn</th>
-                                    <th className="p-3 text-3xl font-semibold bg-[#aff3f7] border-2 border-gray-300">Đề cương</th>
-                                    <th className="p-3 text-3xl font-semibold bg-[#aff3f7] border-2 border-gray-300">Chức năng</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {dt === undefined ? <></> : (
+            {isLoading ? <div>Trang web đang được tải</div> :
+                !sinhvien ? (
+                    <h2 className="text-center mt-12 text-[2.4rem] font-bold">Bạn chưa có nhóm nghiên cứu khoa học không thể xem trạng thái đề tài</h2>
+                ) : (
+                    <>
+                        <h2 className="text-center text-4xl font-bold pb-16 border-b-2 border-gray-200">Trạng thái đề tài</h2>
+                        <div className="px-4 select-none">
+                            <table className="w-full mt-12">
+                                <thead>
                                     <tr>
-                                        <td className="p-3 border-2 max-w-[280px] border-gray-300">{dt.tendt.length <= 25 ? dt.tendt : dt.tendt.substring(0, 25) + " ..."}</td>
-                                        <td className="p-3 border-2 max-w-[210px] border-gray-300">{dt.tenchunhiem}</td>
-                                        <td className="p-3 border-2 max-w-[210px] border-gray-300">{dt.tengvhd}</td>
-                                        <td className="p-3 border-2 max-w-[265px] border-gray-300">{dt.decuong ? (dt.decuong.length <= 25 ? dt.decuong : dt.decuong.substring(0, 25) + " ...") : "Chưa nộp đề cương"}</td>
-                                        <td className="p-3 border-2 border-gray-300">
-                                            <div className="flex gap-4">
-                                                <div onClick={handleDetail} className="px-6 py-1 cursor-pointer hover:bg-blue-300 bg-blue-200 rounded-3xl">
-                                                    <FontAwesomeIcon className="mr-2" icon={faCircleExclamation} /> Chi tiết
-                                                </div>
-                                                <div className="px-6 py-1 cursor-pointer text-white hover:bg-rose-500 bg-rose-400 rounded-3xl">
-                                                    <FontAwesomeIcon className="mr-2" icon={faPen} /> Chỉnh sửa
-                                                </div>
-                                            </div>
-                                        </td>
+                                        <th className="p-3 text-3xl font-semibold bg-[#aff3f7] border-2 border-gray-300">Tên đề tài</th>
+                                        <th className="p-3 text-3xl font-semibold bg-[#aff3f7] border-2 border-gray-300">Chủ nhiệm đề tài</th>
+                                        <th className="p-3 text-3xl font-semibold bg-[#aff3f7] border-2 border-gray-300">Giảng viên hướng dẫn</th>
+                                        <th className="p-3 text-3xl font-semibold bg-[#aff3f7] border-2 border-gray-300">Đề cương</th>
+                                        <th className="p-3 text-3xl font-semibold bg-[#aff3f7] border-2 border-gray-300">Chức năng</th>
                                     </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                    <Modal hidden ref={modalRef} onClick={handleClose} className="modal">
-                        <div className="relative">
-                            <h3 className="text-center m-8 text-4xl font-semibold">Chi tiết đề tài</h3>
-                            <FontAwesomeIcon onClick={handleClose} className="absolute top-1/2 right-5 -translate-y-1/2 p-2 text-4xl cursor-pointer hover:opacity-70" icon={faXmark} />
+                                </thead>
+                                <tbody>
+                                    {detai && (
+                                        <tr>
+                                            <td className="p-3 border-2 max-w-[280px] border-gray-300">{detai.tendt}</td>
+                                            <td className="p-3 border-2 max-w-[210px] border-gray-300">{detai.tenchunhiem}</td>
+                                            <td className="p-3 border-2 max-w-[210px] border-gray-300">{detai.tengvhd}</td>
+                                            <td className="p-3 border-2 max-w-[265px] border-gray-300">{decuong ? decuong : "Chưa nộp đề cương"}</td>
+                                            <td className="p-3 border-2 border-gray-300">
+                                                <div className="flex gap-4 justify-center items-center">
+                                                    <button onClick={() => { modalDetailRef.current.hidden = false; }} className="flex px-6 py-2 cursor-pointer hover:bg-blue-300 bg-blue-200 rounded-3xl">
+                                                        <FontAwesomeIcon className="mr-2" icon={faCircleExclamation} />
+                                                        <span className="shrink-0">Chi tiết</span>
+                                                    </button>
+                                                    {!ketqua && (
+                                                        <button
+                                                            onClick={() => {
+                                                                if (detai.trangthai === "Đã duyệt") modalUpdateRef.current.hidden = false;
+                                                                else modalNotifyRef.current.hidden = false;
+                                                            }}
+                                                            className="flex px-6 py-2 cursor-pointer text-white hover:bg-rose-600 bg-rose-500 rounded-3xl"
+                                                        >
+                                                            <FontAwesomeIcon className="mr-2" icon={faPen} /> 
+                                                            <span className="shrink-0">Chỉnh sửa</span>
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
-                        <div className="p-10">
-                            <div className="flex gap-12">
-                                <div className="w-[300px]">
-                                    <label className="block text-[1.8rem] mb-2">Mã sinh viên</label>
-                                    <input
-                                        className="w-full px-3 py-2 text-[1.8rem] border-solid border-2 border-gray-400 focus:border-gray-700 rounded-md"
-                                        type="text"
-                                        placeholder="Mã sinh viên"
-                                    />
+                        <Modal hidden ref={modalDetailRef} onClick={handleClose} className="modal">
+                            <div className="flex items-center justify-center sticky bg-white top-0 left-0 right-0 h-[65px] shadow-md">
+                                <h3 className="text-center text-4xl font-semibold">Chi tiết đề tài</h3>
+                                <FontAwesomeIcon onClick={handleClose} className="absolute top-1/2 right-5 -translate-y-1/2 p-2 text-4xl cursor-pointer hover:opacity-70" icon={faXmark} />
+                            </div>
+                            <div className="p-12">
+                                <h3 className="text-[2rem] font-medium">Trạng thái: {detai.trangthai}</h3>
+                                <div className="flex gap-12 mt-6">
+                                    <div className="w-[300px]">
+                                        <label className="block text-[1.8rem] mb-1">Tên đề tài</label>
+                                        <textarea
+                                            value={detai.tendt}
+                                            disabled
+                                            className="resize-none w-full px-3 py-2 text-[1.8rem] bg-gray-100 border-solid border-2 border-gray-400 focus:border-gray-700 rounded-md"
+                                            type="text"
+                                            placeholder="Tên đề tài"
+                                        ></textarea>
+                                    </div>
+                                    <div className="w-[300px]">
+                                        <label className="block text-[1.8rem] mb-1">Tên giảng viên hướng dẫn</label>
+                                        <input
+                                            value={detai.tengvhd}
+                                            disabled
+                                            className="w-full px-3 py-2 text-[1.8rem] bg-gray-100 border-solid border-2 border-gray-400 focus:border-gray-700 rounded-md"
+                                            type="text"
+                                            placeholder="Tên giảng viên hướng dẫn"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="w-[300px]">
-                                    <label className="block text-[1.8rem] mb-2">Tên sinh viên</label>
-                                    <input className="w-full px-3 py-2 text-[1.8rem] border-solid border-2 border-gray-400 focus:border-gray-700 rounded-md" type="text" placeholder="Tên sinh viên" />
+                                <div className="flex gap-12 mt-6">
+                                    <div className="w-[300px]">
+                                        <label className="block text-[1.8rem] mb-1">Mã chủ nhiệm</label>
+                                        <input
+                                            value={detai.machunhiem}
+                                            disabled
+                                            className="w-full px-3 py-2 text-[1.8rem] bg-gray-100 border-solid border-2 border-gray-400 focus:border-gray-700 rounded-md"
+                                            type="text"
+                                            placeholder="Mã chủ nhiệm"
+                                        />
+                                    </div>
+                                    <div className="w-[300px]">
+                                        <label className="block text-[1.8rem] mb-1">Tên chủ nhiệm</label>
+                                        <input
+                                            value={detai.tenchunhiem}
+                                            disabled
+                                            className="w-full px-3 py-2 text-[1.8rem] bg-gray-100 border-solid border-2 border-gray-400 focus:border-gray-700 rounded-md"
+                                            type="text"
+                                            placeholder="Tên chủ nhiệm"
+                                        />
+                                    </div>
+                                </div>
+                                {
+                                    dsthanhvien.map((thanhvien, index) => (
+                                        <div key={index} className="flex gap-12 mt-6">
+                                            <div className="w-[300px]">
+                                                <label className="block text-[1.8rem] mb-1">Mã thành viên</label>
+                                                <input
+                                                    value={thanhvien.masv}
+                                                    disabled
+                                                    className="w-full px-3 py-2 text-[1.8rem] bg-gray-100 border-solid border-2 border-gray-400 focus:border-gray-700 rounded-md"
+                                                    type="text"
+                                                    placeholder="Mã thành viên"
+                                                />
+                                            </div>
+                                            <div className="w-[300px]">
+                                                <label className="block text-[1.8rem] mb-1">Tên thành viên</label>
+                                                <input
+                                                    value={thanhvien.tensv}
+                                                    disabled
+                                                    className="w-full px-3 py-2 text-[1.8rem] bg-gray-100 border-solid border-2 border-gray-400 focus:border-gray-700 rounded-md"
+                                                    type="text"
+                                                    placeholder="Tên thành viên"
+                                                />
+                                            </div>
+                                        </div>
+                                    ))
+                                }
+                                <div className="flex gap-12 mt-6">
+                                    <div className="w-[300px]">
+                                        <label className="block text-[1.8rem] mb-1">Đề cương</label>
+                                        <textarea
+                                            value={decuong ? decuong : "Chưa nộp đề cương"}
+                                            disabled
+                                            className="resize-none w-full overflow-auto px-3 py-2 text-[1.8rem] bg-gray-100 border-solid border-2 border-gray-400 focus:border-gray-700 rounded-md"
+                                            type="text"
+                                            placeholder="Đề cương"
+                                            rows="3"
+                                        ></textarea>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </Modal>
-                </>
-            )}
+                        </Modal>
+                        <Modal hidden ref={modalUpdateRef} onClick={handleClose} className="modal">
+                            <div className="flex items-center justify-center sticky bg-white top-0 left-0 right-0 h-[65px] shadow-md">
+                                <h3 className="text-center text-4xl font-semibold">Chỉnh sửa</h3>
+                                <FontAwesomeIcon onClick={handleClose} className="absolute top-1/2 right-5 -translate-y-1/2 p-2 text-4xl cursor-pointer hover:opacity-70" icon={faXmark} />
+                            </div>
+                            <div className="p-12">
+                                <div className="w-[500px]">
+                                    <label className="block text-[1.8rem] mb-1">Đề cương</label>
+                                    <textarea
+                                        ref={textareaFileRef}
+                                        value={decuong ? decuong : "Chưa nộp đề cương"}
+                                        disabled
+                                        className="resize-none w-full overflow-auto px-3 py-2 text-[1.8rem] bg-gray-100 border-solid border-2 border-gray-400 focus:border-gray-700 rounded-md"
+                                        type="text"
+                                        placeholder="Đề cương"
+                                        rows="2"
+                                    ></textarea>
+                                </div>
+                                <div>
+                                    <input
+                                        ref={inputFileRef}
+                                        hidden
+                                        id="file"
+                                        type="file"
+                                        accept=".doc, .docx"
+                                        placeholder="Chọn đề cương"
+                                        onChange={e => textareaFileRef.current.value = e.target.files[0]?.name || textareaFileRef.current.value}
+                                    />
+                                    <label htmlFor="file" className="inline-block mt-5 px-5 py-2 text-[1.8rem] text-white rounded-[4px] bg-[#fe2c55] hover:bg-[#ff5a7b] cursor-pointer">Chọn đề cương</label>
+                                </div>
+                                <div className="flex"><Button primary onClick={() => handleUpdate(inputFileRef.current.files[0]?.name || "")} className="ml-auto mt-8">Cập nhật</Button></div>
+                            </div>
+                        </Modal>
+                        <Modal hidden ref={modalNotifyRef} onClick={handleClose} className="modal">
+                            <div className="flex items-center justify-center sticky bg-white top-0 left-0 right-0 h-[65px] shadow-md">
+                                <h3 className="text-center text-4xl font-semibold">Thông báo</h3>
+                                <FontAwesomeIcon onClick={handleClose} className="absolute top-1/2 right-5 -translate-y-1/2 p-2 text-4xl cursor-pointer hover:opacity-70" icon={faXmark} />
+                            </div>
+                            <div className="p-12">
+                                <h3 className="text-center m-8 text-[2rem] font-semibold">Đề tài đang chờ duyệt, vui lòng dợi</h3>
+                            </div>
+                        </Modal>
+                    </>
+                )
+            }
         </div>
     );
 }

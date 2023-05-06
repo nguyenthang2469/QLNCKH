@@ -1,5 +1,11 @@
 function Profile() {
-    return (<h2>Profile</h2>);
+    return (
+        <div className="wrapper">
+            <div className="inner">
+                
+            </div>
+        </div>
+    );
 }
 
 export default Profile;

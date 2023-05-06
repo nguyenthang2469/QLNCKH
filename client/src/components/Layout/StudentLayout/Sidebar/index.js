@@ -17,7 +17,7 @@ function Sidebar() {
             <div className={cx('inner', 'pt-10 px-5 font-normal text-3xl')}>
                 <div className="py-6 cursor-pointer hover:bg-gray-200 rounded-xl px-6">
                     <Link to="/" className="flex items-center">
-                        <FontAwesomeIcon className="w-12 text-[#6b6767] mr-6 inline-flex justify-center" icon={faHouse} />
+                        <FontAwesomeIcon className="w-12 mr-6 inline-flex justify-center" icon={faHouse} />
                         <header className="w-full inline-block">Trang chủ</header>
                     </Link>
                 </div>

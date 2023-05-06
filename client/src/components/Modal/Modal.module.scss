@@ -14,7 +14,7 @@
     left: 0;
     bottom: 0;
     background-color: #ccc;
-    opacity: 0.6;
+    opacity: 0.8;
 }
 
 .inner {
@@ -22,6 +22,8 @@
     z-index: 10;
     top: 50%;
     left: 50%;
+    max-height: 90vh;
+    overflow-y: auto;
     transform: translate(-50%, -50%);
     border-radius: 12px;
     background-color: #fff;

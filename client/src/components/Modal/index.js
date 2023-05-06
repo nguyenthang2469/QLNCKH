@@ -6,7 +6,7 @@ const cx = classNames.bind(styles);
 
 function Modal({ children, hidden, className, onClick = () => { } }, ref) {
     return (
-        <div hidden ref={ref} className={cx('wrapper', { [className]: className })}>
+        <div hidden={hidden} ref={ref} className={cx('wrapper', { [className]: className })}>
             <div onClick={onClick} className={cx('modal-layout')}></div>
             <div className={cx('inner')}>
                 {children}

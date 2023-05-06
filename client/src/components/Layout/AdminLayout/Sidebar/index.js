@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import classNames from 'classnames/bind';
-import styles from './Sidebar.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBook, faChevronDown, faClipboard, faHouse, faTableList } from '@fortawesome/free-solid-svg-icons';
+import { faBook, faChevronDown, faClipboard, faHouse, faRectangleList, faTableList } from '@fortawesome/free-solid-svg-icons';
+import styles from './Sidebar.module.scss';
 
 const cx = classNames.bind(styles);
 
@@ -14,10 +14,10 @@ function Sidebar() {
 
     return (
         <aside className={cx('wrapper')}>
-            <div className="pt-10 px-5 font-normal text-3xl">
+            <div className={cx('inner', "pt-10 px-5 font-normal text-3xl")}>
                 <div className="py-6 cursor-pointer hover:bg-gray-200 rounded-xl px-6">
                     <Link to="/admin" className="flex items-center">
-                        <FontAwesomeIcon className="w-12 text-[#6b6767] mr-6 inline-flex justify-center" icon={faHouse} />
+                        <FontAwesomeIcon className="w-12 mr-6 inline-flex justify-center" icon={faHouse} />
                         <header className="w-full inline-block">Trang chủ</header>
                     </Link>
                 </div>
@@ -49,7 +49,7 @@ function Sidebar() {
                 </Link>
                 <Link to="/admin/dssinhvien" className="parent flex items-center py-6 cursor-pointer hover:bg-gray-200 rounded-xl px-6">
                     <span>
-                        <FontAwesomeIcon className="w-12 mr-6 inline-flex justify-center" icon={faTableList} />
+                        <FontAwesomeIcon className="w-12 mr-6 inline-flex justify-center" icon={faRectangleList} />
                     </span>
                     <header className="w-full">Danh sách sinh viên</header>
                 </Link>

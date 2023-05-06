@@ -5,11 +5,12 @@ import { useEffect, useRef, useState } from "react";
 import classNames from "classnames/bind";
 import styles from "./Login.module.scss";
 import Button from "~/components/Button";
+import * as request from "~/utils/request";
 
 const cx = classNames.bind(styles);
 
 function Login() {
-    const [accounts, setAccounts] = useState([]);
+    const [account, setAccount] = useState();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const incorrectUsername = useRef();
@@ -18,38 +19,32 @@ function Login() {
     const inputPassword = useRef();
 
     useEffect(() => {
-        fetch("http://localhost/QLNCKH/PHP/account.php")
-            .then((response) => response.json())
-            .then((res) => {
-                setAccounts(res);
-            });
-    }, []);
+        const fetchAPI = async (taikhoan) => {
+            const res = await request.get('/user', { params: { taikhoan } });
+            setAccount(res[0]);
+        };
+        fetchAPI(username);
+    }, [username]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (username && password) {
-            const currentUser = accounts.find((account) => {
-                return account.taikhoan === username;
-            });
-            if (currentUser) {
-                localStorage.setItem('account', JSON.stringify({ "ma": currentUser.taikhoan, "hoten": currentUser.hoten, "quyen": currentUser.quyen }));
-                if (!incorrectUsername.current.classList.contains('hidden'))
-                    incorrectUsername.current.classList.add('hidden');
-                if (password === currentUser.matkhau) {
-                    if (!incorrectPassword.current.classList.contains('hidden'))
-                        incorrectPassword.current.classList.add('hidden');
+            if (account) {
+                if (password === account.matkhau) {
+                    incorrectPassword.current.hidden = true;
 
+                    localStorage.setItem('account', JSON.stringify({ "ma": account.taikhoan, "hoten": account.hoten, "quyen": account.quyen }));
                     let path = '/';
-                    if (currentUser.quyen === "giangvien") path += 'teacher/';
-                    else if (currentUser.quyen === "quantrivien") path += 'admin/';
+                    if (account.quyen === "giangvien") path += 'teacher/';
+                    else if (account.quyen === "quantrivien") path += 'admin/';
                     window.location.href = path;
                 } else {
-                    if (incorrectPassword.current.classList.contains('hidden'))
-                        incorrectPassword.current.classList.remove('hidden');
+                    incorrectPassword.current.hidden = false;
+                    incorrectPassword.current.previousElementSibling.querySelector("input").focus();
                 }
             } else {
-                if (incorrectUsername.current.classList.contains('hidden'))
-                    incorrectUsername.current.classList.remove('hidden');
+                incorrectUsername.current.hidden = false;
+                incorrectUsername.current.previousElementSibling.querySelector("input").focus();
             }
         }
     };
@@ -62,15 +57,38 @@ function Login() {
                     <label htmlFor="username" className="block font-semibold text-3xl mb-3 mt-7">Tên Tài khoản</label>
                     <div className="relative text-gray-400 focus-within:text-gray-600 border-b-2 border-gray-300 focus-within:border-gray-400 focus-within:rounded-lg focus-within:bg-[#eaf0ff]">
                         <FontAwesomeIcon className={cx('icon')} icon={faUser} />
-                        <input ref={inputUsername} value={username} onChange={e => setUsername(e.target.value)} id="username" type="text" placeholder="Mã Số Sinh Viên" className="bg-transparent text-2xl pl-14 pr-2 py-4 w-full z-10 relative" />
+                        <input
+                            ref={inputUsername}
+                            value={username}
+                            onChange={e => {
+                                incorrectUsername.current.hidden = true;
+                                setUsername(e.target.value);
+                            }}
+                            id="username"
+                            type="text"
+                            placeholder="Mã Số Sinh Viên"
+                            className="bg-transparent text-2xl pl-14 pr-2 py-4 w-full z-10 relative"
+                        />
                     </div>
-                    <span ref={incorrectUsername} className="hidden text-red-500 font-medium">*Tài khoản không chính xác</span>
+                    <span hidden ref={incorrectUsername} className="text-red-500 font-medium">*Tài khoản không chính xác</span>
                     <label htmlFor="password" className="block font-semibold text-3xl mb-3 mt-7">Mật Khẩu</label>
                     <div className="relative text-gray-400 focus-within:text-gray-600 border-b-2 border-gray-300 focus-within:border-gray-400 focus-within:rounded-lg focus-within:bg-[#eaf0ff]">
                         <FontAwesomeIcon className={cx('icon')} icon={faLock} />
-                        <input ref={inputPassword} value={password} onChange={e => setPassword(e.target.value)} id="password" type="password" placeholder="Mật Khẩu" minLength="6" className="bg-transparent text-2xl pl-14 pr-2 py-4 w-full z-10 relative" />
+                        <input
+                            ref={inputPassword}
+                            value={password}
+                            onChange={e => {
+                                incorrectPassword.current.hidden = true;
+                                setPassword(e.target.value);
+                            }}
+                            id="password"
+                            type="password"
+                            placeholder="Mật Khẩu"
+                            minLength="6"
+                            className="bg-transparent text-2xl pl-14 pr-2 py-4 w-full z-10 relative"
+                        />
                     </div>
-                    <span ref={incorrectPassword} className="hidden text-red-500 font-medium">*Mật khẩu không đúng</span>
+                    <span hidden ref={incorrectPassword} className="text-red-500 font-medium">*Mật khẩu không đúng</span>
                     <div className="mt-3 text-end underline hover:text-red-400">
                         <Link to="#" className="hover:text-current">Quên mật khẩu?</Link>
                     </div>
