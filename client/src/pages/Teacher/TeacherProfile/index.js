@@ -58,7 +58,7 @@ function TeacherProfile() {
                 !isLoading &&
                 <div className="flex bg-white rounded-[15px]">
                     <div className="flex flex-col gap-2 items-center basis-[300px] mt-60">
-                        <img className="w-64 h-64" src="../images/avatar_giangvien.png" />
+                        <img className="w-64 h-64" src="../images/avatar_giangvien.png" alt="avatar" />
                         <h4 className="font-semibold text-[2.2rem]">Giảng viên</h4>
                         <h3 className="text-[2rem]">{currentUser.hoten}</h3>
                     </div>
