@@ -245,7 +245,7 @@ function TrangThaiDeTai() {
                                 <FontAwesomeIcon onClick={handleClose} className="absolute top-1/2 right-5 -translate-y-1/2 p-2 text-4xl cursor-pointer hover:opacity-70" icon={faXmark} />
                             </div>
                             <div className="p-12">
-                                <h3 className="text-center m-8 text-[2rem] font-semibold">Đề tài đang chờ duyệt, vui lòng dợi</h3>
+                                <h3 className="text-center m-8 text-[2rem] font-semibold">Đề tài đang chờ duyệt, vui lòng đợi</h3>
                             </div>
                         </Modal>
                     </>

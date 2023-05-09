@@ -77,6 +77,7 @@ function PhanCongGV() {
                         return prev.filter(dt => dt.madt !== detai.madt)
                     })
                     alert("Phân công giáo viên thành công!");
+                    modalAssignmentRef.current.hidden = true;
                 }
             };
             fetchAPI();

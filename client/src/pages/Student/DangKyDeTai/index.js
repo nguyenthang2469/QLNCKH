@@ -13,7 +13,7 @@ function DangKyDeTai() {
     const [dsgvdahd, setDsgvdahd] = useState([]);
     const [sv, setSv] = useState({});
     const [tendetai, setTendetai] = useState('');
-    const [gvhd, setGvhd] = useState({});
+    const [gvhd, setGvhd] = useState('');
     const [dsthanhvien, setDsthanhvien] = useState([]);
     const [mathanhvien, setMathanhvien] = useState('');
 
