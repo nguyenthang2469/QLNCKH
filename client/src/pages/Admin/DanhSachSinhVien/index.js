@@ -6,6 +6,7 @@ import * as request from "~/utils/request";
 
 function DanhSachSinhVien() {
     const [dssinhvien, setDssinhvien] = useState([]);
+    const [dssinhvienhienthi, setDssinhvienhienthi] = useState([]);
     const [masv, setMasv] = useState('');
     const [tensv, setTensv] = useState('');
     const [ngaysinh, setNgaysinh] = useState('');
@@ -14,6 +15,8 @@ function DanhSachSinhVien() {
     const [khoa, setKhoa] = useState('');
     const [diachi, setDiachi] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [attrSearch, setAttrSearch] = useState("masv");
+    const [valueSearch, setValueSearch] = useState("");
 
     const modalUpdateRef = useRef();
 
@@ -21,7 +24,10 @@ function DanhSachSinhVien() {
         const fetchAPI = async () => {
             setIsLoading(true);
             const res = await request.get("/sinhvien");
-            res.length && setDssinhvien(res);
+            if(res.length) {
+                setDssinhvien(res);
+                setDssinhvienhienthi(res);
+            }
             setIsLoading(false);
         };
         fetchAPI();
@@ -76,6 +82,13 @@ function DanhSachSinhVien() {
         }
     };
 
+    const handleSearch = (e) => {
+        setValueSearch(e.target.value);
+        if (e.target.value) {
+            setDssinhvienhienthi(dssinhvien.filter(sv => sv[attrSearch].toLowerCase().includes(e.target.value.toLowerCase())));
+        } else setDssinhvienhienthi(dssinhvien);
+    };
+
     return (
         <div>
             {isLoading ? <div>Trang web đang được tải</div> :
@@ -84,6 +97,27 @@ function DanhSachSinhVien() {
                 ) : (
                     <>
                         <h2 className="text-center text-4xl font-bold pb-16 border-b-2 border-gray-200">Danh sách sinh viên</h2>
+                        <div className="mt-4">
+                            <span>Tìm kiếm</span>
+                            <select
+                                value={attrSearch}
+                                onChange={e => setAttrSearch(e.target.value)}
+                                className="mx-4 px-3 py-2 text-[1.8rem] border-solid border-2 border-gray-400 focus:border-gray-600 rounded-md"
+                            >
+                                <option value="masv">Mã</option>
+                                <option value="tensv">Họ tên</option>
+                                <option value="lop">Lớp</option>
+                                <option value="khoa">Khoa</option>
+                                <option value="diachi">Địa chỉ</option>
+                            </select>
+                            <input
+                                value={valueSearch}
+                                onChange={handleSearch}
+                                className="w-[400px] px-3 py-2 text-[1.8rem] leading-[2.3rem] border-solid border-2 border-gray-400 rounded-md"
+                                type="search"
+                                placeholder="Từ khóa tìm kiếm"
+                            />
+                        </div>
                         <div className="px-4 select-none">
                             <table className="w-full mt-12">
                                 <thead>
@@ -100,7 +134,7 @@ function DanhSachSinhVien() {
                                 </thead>
                                 <tbody>
                                     {
-                                        dssinhvien.map((sv, index) => (
+                                        dssinhvienhienthi.map((sv, index) => (
                                             <tr key={index}>
                                                 <td className="p-3 border-2 max-w-[280px] border-gray-300">{sv.masv}</td>
                                                 <td className="p-3 border-2 max-w-[280px] border-gray-300">{sv.tensv}</td>

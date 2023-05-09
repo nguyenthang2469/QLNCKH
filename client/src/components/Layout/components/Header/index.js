@@ -17,7 +17,6 @@ if (currentUser?.quyen === "giangvien") path = "/teacher";
 else if (currentUser?.quyen === "quantrivien") path = "/admin";
 
 function Header() {
-    const [matkhaucu, setMatkhaucu] = useState('');
     const [matkhaucuInput, setMatkhaucuInput] = useState('');
     const [matkhaumoi, setMatkhaumoi] = useState('');
     const [matkhaumoikt, setMatkhaumoikt] = useState('');
@@ -72,14 +71,6 @@ function Header() {
     ]);
     const modalRef = useRef();
 
-    useEffect(() => {
-        const fetchAPI = async (taikhoan) => {
-            const res = await request.get("/user", { params: { taikhoan } });
-            res.length && setMatkhaucu(res[0].matkhau);
-        };
-        fetchAPI(currentUser.ma);
-    }, []);
-
     const handleClose = (e) => {
         e.target.closest(".modal").hidden = true;
         setMatkhaucuInput('');
@@ -89,22 +80,25 @@ function Header() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (matkhaucu !== matkhaucuInput) alert("Mật khẩu cũ không đúng, vui lòng nhập lại");
-        else if (matkhaucu === matkhaumoi) alert("Mật khẩu mới không được giống mật khẩu cũ");
-        else if (matkhaumoi !== matkhaumoikt) alert("Mật khẩu nhập lại không trùng mật khẩu mới");
-        else {
-            const fetchAPI = async (taikhoan) => {
-                const res = await request.put(`/user/${taikhoan}`, { matkhau: matkhaumoi });
-                if (res) {
-                    alert("Đổi mật khẩu thành công");
-                    setMatkhaucuInput('');
-                    setMatkhaumoi('');
-                    setMatkhaumoikt('');
-                    modalRef.current.hidden = true;
+        const fetchAPI = async (taikhoan) => {
+            const res = await request.get("/user", { params: { taikhoan } });
+            if(res.length) {
+                if (res[0].matkhau !== matkhaucuInput) alert("Mật khẩu cũ không đúng, vui lòng nhập lại");
+                else if (res[0].matkhau === matkhaumoi) alert("Mật khẩu mới không được giống mật khẩu cũ");
+                else if (matkhaumoi !== matkhaumoikt) alert("Xác nhận mật khẩu không trùng khớp mật khẩu mới");
+                else {
+                    const res = await request.put(`/user/${taikhoan}`, { matkhau: matkhaumoi });
+                    if (res) {
+                        alert("Đổi mật khẩu thành công");
+                        setMatkhaucuInput('');
+                        setMatkhaumoi('');
+                        setMatkhaumoikt('');
+                        modalRef.current.hidden = true;
+                    }
                 }
-            };
-            fetchAPI(currentUser.ma);
-        }
+            }
+        };
+        fetchAPI(currentUser.ma);
     };
 
     const handleMenuChange = (menuItem) => {
@@ -150,14 +144,14 @@ function Header() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-[1.8rem] mb-1">Nhập lại mật khẩu mới</label>
+                                    <label className="block text-[1.8rem] mb-1">Xác nhận mật khẩu</label>
                                     <input
                                         value={matkhaumoikt}
                                         onChange={e => setMatkhaumoikt(e.target.value)}
                                         className="w-full p-4 text-[1.8rem] border-solid border-2 border-gray-400 focus:border-gray-600 rounded-md"
                                         type="password"
                                         minLength="6"
-                                        placeholder="Nhập lại mật khẩu mới"
+                                        placeholder="Xác nhận mật khẩu"
                                         required
                                     />
                                 </div>
@@ -179,7 +173,14 @@ function Header() {
                     </Modal>
                 </div>
                 <div className="flex items-center gap-6">
-                    <Link to="/"><FontAwesomeIcon className="text-4xl cursor-pointer" title="Thông báo" icon={faBell} /></Link>
+                    <Link
+                        to={
+                            currentUser?.quyen === "giangvien" ? "/teacher" :
+                                currentUser?.quyen === "quantrivien" ? "/admin" : "/"
+                        }
+                    >
+                        <FontAwesomeIcon className="text-4xl cursor-pointer" title="Thông báo" icon={faBell} />
+                    </Link>
                     <span className="text-gray-500 font-medium">{currentUser.hoten}</span>
                     <Menu
                         items={MENU_PROFILE.current}

@@ -5,10 +5,13 @@ import Modal from "~/components/Modal";
 import * as request from "~/utils/request";
 
 function PhanCongDetai() {
-    const [dsdetai, setDsdetai] = useState(null);
+    const [dsdetai, setDsdetai] = useState([]);
+    const [dsdetaihienthi, setDsdetaihienthi] = useState([]);
     const [detai, setDetai] = useState(null);
     const [dsthanhvien, setDsthanhvien] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [attrSearch, setAttrSearch] = useState("tendt");
+    const [valueSearch, setValueSearch] = useState("");
 
     const modalDetailRef = useRef();
     const modalApproveRef = useRef();
@@ -56,23 +59,53 @@ function PhanCongDetai() {
         modalApproveRef.current.hidden = true;
     }
 
+    const handleSearch = (e) => {
+        setValueSearch(e.target.value);
+        if(e.target.value) {
+            setDsdetaihienthi(dsdetai.filter(dt => dt[attrSearch].toLowerCase().includes(e.target.value.toLowerCase())))
+        } else setDsdetaihienthi(dsdetai);
+    }
+
     useEffect(() => {
         const fetchAPI = async () => {
             setIsLoading(true);
-            const resdt = await request.get("/detai", { params: { trangthai: "Đang chờ duyệt" } });
-            setDsdetai(resdt);
+            const res = await request.get("/detai", { params: { trangthai: "Đang chờ duyệt" } });
+            if(res.length) {
+                setDsdetai(res);
+                setDsdetaihienthi(res);
+            }
             setIsLoading(false);
         };
         fetchAPI();
     }, []);
+
     return (
         <div>
             {isLoading ? <div>Trang web đang được tải</div> :
-                !dsdetai || dsdetai.length === 0 ? (
+                !dsdetai.length ? (
                     <h2 className="text-center mt-12 text-[2.4rem] font-bold">Hiện không có nhóm nghiên cứu nào chờ duyệt</h2>
                 ) : (
                     <>
                         <h2 className="text-center text-4xl font-bold pb-16 border-b-2 border-gray-200">Danh sách đề tài đang chờ duyệt</h2>
+                        <div className="mt-4">
+                            <span>Tìm kiếm</span>
+                            <select
+                                value={attrSearch}
+                                onChange={e => setAttrSearch(e.target.value)}
+                                className="mx-4 px-3 py-2 text-[1.8rem] border-solid border-2 border-gray-400 focus:border-gray-600 rounded-md"
+                            >
+                                <option value="tendt">Tên đề tài</option>
+                                <option value="tenchunhiem">Chủ nhiệm đề tài</option>
+                                <option value="tengvhd">Giảng viên hướng dẫn</option>
+                            </select>
+                            <input
+                                value={valueSearch}
+                                onChange={handleSearch}
+                                className="w-[400px] px-3 py-2 text-[1.8rem] leading-[2.3rem] border-solid border-2 border-gray-400 rounded-md"
+                                type="search"
+                                placeholder="Từ khóa tìm kiếm"
+                            />
+                        </div>
                         <div className="px-4 select-none">
                             <table className="w-full mt-12">
                                 <thead>
@@ -87,7 +120,7 @@ function PhanCongDetai() {
                                 </thead>
                                 <tbody>
                                     {
-                                        dsdetai.map((dt, index) => (
+                                        dsdetaihienthi.map((dt, index) => (
                                             <tr key={index}>
                                                 <td className="p-3 border-2 max-w-[280px] border-gray-300">{dt.tendt}</td>
                                                 <td className="p-3 border-2 max-w-[210px] border-gray-300">{dt.machunhiem}</td>

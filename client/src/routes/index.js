@@ -1,5 +1,7 @@
 import { StudentLayout, TeacherLayout, AdminLayout } from '~/components/Layout';
 import Login from '~/pages/Login';
+import Register from '~/pages/Register';
+
 import Home from '~/pages/Student/Home';
 import Profile from '~/pages/Student/Profile';
 import DangKyDeTai from '~/pages/Student/DangKyDeTai';
@@ -23,7 +25,8 @@ import KetQuaCham from '~/pages/Teacher/KetQuaCham';
 import AdminKetQuaDeTai from '~/pages/Admin/AdminKetQuaDeTai';
 
 const publicRoutes = [
-    { title: 'Đăng nhập', path: '/', component: Login, layout: null }
+    { title: 'Đăng nhập', path: '/', component: Login, layout: null },
+    { title: 'Đăng ký', path: '/register', component: Register, layout: null }
 ];
 
 const privateRoutes = [

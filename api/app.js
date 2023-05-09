@@ -39,6 +39,20 @@ app.put("/api/user/:taikhoan", (req, res) => {
     });
 });
 
+app.post("/api/user", (req, res) => {
+    const taikhoan = req.body.taikhoan;
+    const matkhau = req.body.matkhau;
+    const hoten = req.body.hoten;
+    const quyen = req.body.quyen;
+
+    db.query("INSERT INTO account (taikhoan, matkhau, hoten, quyen) VALUES(?,?,?,?)", [taikhoan, matkhau, hoten, quyen], (err, result) => {
+        if (err) {
+            console.log(err);
+        }
+        res.send(result);
+    });
+});
+
 // Sinh viên
 app.get("/api/sinhvien", (req, res) => {
     const masv = req.query.masv;

@@ -6,6 +6,7 @@ import * as request from "~/utils/request";
 
 function DanhSachGiangVien() {
     const [dsgiangvien, setDsgiangvien] = useState([]);
+    const [dsgiangvienhienthi, setDsgiangvienhienthi] = useState([]);
     const [magv, setMagv] = useState('');
     const [tengv, setTengv] = useState('');
     const [ngaysinh, setNgaysinh] = useState('');
@@ -13,6 +14,8 @@ function DanhSachGiangVien() {
     const [khoa, setKhoa] = useState('');
     const [diachi, setDiachi] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [attrSearch, setAttrSearch] = useState("magv");
+    const [valueSearch, setValueSearch] = useState("");
 
     const modalUpdateRef = useRef();
 
@@ -20,7 +23,10 @@ function DanhSachGiangVien() {
         const fetchAPI = async () => {
             setIsLoading(true);
             const res = await request.get("/giangvien");
-            res.length && setDsgiangvien(res);
+            if (res.length) {
+                setDsgiangvien(res);
+                setDsgiangvienhienthi(res);
+            }
             setIsLoading(false);
         };
         fetchAPI();
@@ -39,38 +45,45 @@ function DanhSachGiangVien() {
         setKhoa(gv.khoa);
         setDiachi(gv.diachi);
     };
-    
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        if(!ngaysinh) alert("Ngày sinh không hợp lệ");
-        else if(!khoa) alert("Khoa không được để trống");
-        else if(!diachi) alert("Địa chỉ không được để trống");
+        if (!ngaysinh) alert("Ngày sinh không hợp lệ");
+        else if (!khoa) alert("Khoa không được để trống");
+        else if (!diachi) alert("Địa chỉ không được để trống");
         else {
             const fetchAPI = async () => {
                 setIsLoading(true);
                 const res = await request.put(`/giangvien/${magv}`, {
                     ngaysinh, gioitinh, khoa, diachi
                 });
-                if(res) {
+                if (res) {
                     setDsgiangvien((prev) => {
                         const newDsgv = prev.map((gv) => {
-                            if(gv.magv === magv) {
+                            if (gv.magv === magv) {
                                 gv.ngaysinh = ngaysinh;
                                 gv.gioitinh = gioitinh;
                                 gv.khoa = khoa;
                                 gv.diachi = diachi;
                             }
                             return gv;
-                        })
+                        });
                         return newDsgv;
-                    })
+                    });
                     alert("Cập nhật thành công");
                 }
                 setIsLoading(false);
             };
             fetchAPI();
         }
-    }
+    };
+
+    const handleSearch = (e) => {
+        setValueSearch(e.target.value);
+        if (e.target.value) {
+            setDsgiangvienhienthi(dsgiangvien.filter(gv => gv[attrSearch].toLowerCase().includes(e.target.value.toLowerCase())));
+        } else setDsgiangvienhienthi(dsgiangvien);
+    };
 
     return (
         <div>
@@ -80,6 +93,26 @@ function DanhSachGiangVien() {
                 ) : (
                     <>
                         <h2 className="text-center text-4xl font-bold pb-16 border-b-2 border-gray-200">Danh sách giảng viên</h2>
+                        <div className="mt-4">
+                            <span>Tìm kiếm</span>
+                            <select
+                                value={attrSearch}
+                                onChange={e => setAttrSearch(e.target.value)}
+                                className="mx-4 px-3 py-2 text-[1.8rem] border-solid border-2 border-gray-400 focus:border-gray-600 rounded-md"
+                            >
+                                <option value="magv">Mã</option>
+                                <option value="tengv">Họ tên</option>
+                                <option value="khoa">Khoa</option>
+                                <option value="diachi">Địa chỉ</option>
+                            </select>
+                            <input
+                                value={valueSearch}
+                                onChange={handleSearch}
+                                className="w-[400px] px-3 py-2 text-[1.8rem] leading-[2.3rem] border-solid border-2 border-gray-400 rounded-md"
+                                type="search"
+                                placeholder="Từ khóa tìm kiếm"
+                            />
+                        </div>
                         <div className="px-4 select-none">
                             <table className="w-full mt-12">
                                 <thead>
@@ -95,7 +128,7 @@ function DanhSachGiangVien() {
                                 </thead>
                                 <tbody>
                                     {
-                                        dsgiangvien.map((gv, index) => (
+                                        dsgiangvienhienthi.map((gv, index) => (
                                             <tr key={index}>
                                                 <td className="p-3 border-2 max-w-[280px] border-gray-300">{gv.magv}</td>
                                                 <td className="p-3 border-2 max-w-[280px] border-gray-300">{gv.tengv}</td>
