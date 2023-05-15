@@ -46,7 +46,6 @@ function Register() {
                             hoten: ten,
                             quyen
                         })
-                        console.log(res);
                         if(res) {
                             localStorage.setItem('register', JSON.stringify({ "taikhoan": username, "matkhau": password, "hoten": ten, "quyen": quyen }));
                             alert("Đã đăng ký thành công");
