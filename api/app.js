@@ -3,7 +3,6 @@ const db = require('./config/db');
 const cors = require('cors');
 
 const app = express();
-const PORT = 3002;
 app.use(cors());
 app.use(express.json());
 
@@ -422,8 +421,8 @@ app.post("/api/ketqua", (req, res) => {
     });
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(process.env.DB_PORT, () => {
+    console.log(`Server is running on http://localhost:${process.env.DB_PORT}`);
 });
 
 module.exports = app;
