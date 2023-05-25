@@ -1,11 +1,14 @@
 const express = require('express');
 const db = require('./config/db');
 const cors = require('cors');
+require('dotenv').config();
+const PORT = process.env.PORT;
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+console.log(process.env);
 // Tài khoản
 app.get("/api/user", (req, res) => {
     const taikhoan = req.query.taikhoan;
@@ -421,8 +424,8 @@ app.post("/api/ketqua", (req, res) => {
     });
 });
 
-app.listen(process.env.DB_PORT, () => {
-    console.log(`Server is running on http://localhost:${process.env.DB_PORT}`);
+app.listen(PORT, () => {
+    console.log(`Server is running on http://${process.env.DB_HOST}:${PORT}`);
 });
 
 module.exports = app;

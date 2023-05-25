@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEarthAsia, faEllipsis, faKey, faPowerOff, faUserPen, faXmark } from '@fortawesome/free-solid-svg-icons';

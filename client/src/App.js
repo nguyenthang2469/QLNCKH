@@ -5,7 +5,7 @@ import { StudentLayout } from "~/components/Layout";
 
 function App() {
   const currentUser = localStorage.getItem('account') ?? false;
-
+  
   return (
     <Router>
       <div className="App">

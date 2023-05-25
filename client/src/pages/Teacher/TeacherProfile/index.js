@@ -27,6 +27,7 @@ function TeacherProfile() {
             setIsLoading(false);
         };
         fetchAPI(currentUser.ma);
+        // eslint-disable-next-line
     }, []);
 
     const handleClose = (e) => {
